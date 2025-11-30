@@ -7,6 +7,7 @@ const User = require("./models/Users");
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+// CORS setup for frontend
 app.use(
 	cors({
 		origin: process.env.CLIENT || "https://cryptotrack-ultimez.vercel.app",
@@ -19,34 +20,35 @@ const passport = require("./auth");
 app.use(passport.initialize());
 
 app.get("/", (req, res) => {
-	return res.send("API is running");
+	res.send("API is running");
 });
 
+// User registration endpoint
 app.post("/register", async (req, res) => {
 	const { username, password } = req.body;
 	try {
 		const user = await User.findOne({ username });
 		if (user) {
-			return res.status(400).json({ Error: "User Already Exists" });
+			return res.status(400).json({ Error: "User already exists" });
 		}
 
 		const newUser = new User({ username, password });
-		const response = await newUser.save();
-		return res
-			.status(200)
-			.json({ message: "User Registered Successfully" });
+		await newUser.save();
+		res.status(200).json({ message: "User registered successfully" });
 	} catch (err) {
+		console.error("Registration error:", err);
 		return res.status(500).json(err);
 	}
 });
 
+// Login endpoint
 app.post("/login", (req, res, next) => {
 	passport.authenticate("local", { session: false }, (err, user, info) => {
 		if (err) {
-			return res.status(500).json({ error: "Authentication error" });
+			return res.status(500).json({ error: "Something went wrong" });
 		}
 		if (!user) {
-			return res.status(400).json({ error: "Invalid credentials" });
+			return res.status(400).json({ error: "Invalid username or password" });
 		}
 
 		const payload = { id: user._id, username: user.username };
@@ -54,7 +56,7 @@ app.post("/login", (req, res, next) => {
 			expiresIn: "24h",
 		});
 
-		res.status(200).json({
+		res.json({
 			message: "Login successful",
 			token: token,
 			user: {
@@ -65,6 +67,7 @@ app.post("/login", (req, res, next) => {
 	})(req, res, next);
 });
 
+// Get user's watchlist
 app.get(
 	"/watchlist",
 	passport.authenticate("jwt", { session: false }),
@@ -73,100 +76,102 @@ app.get(
 			const userId = req.user._id;
 			const user = await User.findById(userId);
 			if (!user) {
-				return res.status(404).json({ Error: "User not Found" });
+				return res.status(404).json({ Error: "User not found" });
 			}
 
-			return res.json({ watchlist: user.watchlist });
+			res.json({ watchlist: user.watchlist });
 		} catch (err) {
-			return res.json(500).json(err);
+			res.status(500).json(err);
 		}
 	}
 );
 
+// Get user's portfolio
 app.get(
 	"/portfolio",
 	passport.authenticate("jwt", { session: false }),
 	async (req, res) => {
 		try {
-			const userId = req.user._id;
-			const user = await User.findById(userId);
+			const user = await User.findById(req.user._id);
 			if (!user) {
-				return res.status(404).json({ Error: "User not Found" });
+				return res.status(404).json({ Error: "User not found" });
 			}
 
-			return res.json(user.portfolio);
+			res.json(user.portfolio);
 		} catch (err) {
-			return res.json(500).json(err);
+			res.status(500).json(err);
 		}
 	}
 );
 
+// Add coin to watchlist
 app.put(
 	"/watchlist/add",
 	passport.authenticate("jwt", { session: false }),
 	async (req, res) => {
-		const userId = req.user._id;
-		const coin = req.body.coin;
+		const { coin } = req.body;
 		try {
 			const user = await User.findByIdAndUpdate(
-				userId,
+				req.user._id,
 				{ $addToSet: { watchlist: coin } },
 				{ new: true }
 			);
 
 			if (!user) {
-				return res.status(404).json({ Error: "User not Found" });
+				return res.status(404).json({ Error: "User not found" });
 			}
 
-			return res.status(200).json({ watchlist: user.watchlist });
+			res.json({ watchlist: user.watchlist });
 		} catch (err) {
-			return res.status(500).json(err.message);
+			res.status(500).json(err.message);
 		}
 	}
 );
 
+// Remove coin from watchlist
 app.put(
 	"/watchlist/remove",
 	passport.authenticate("jwt", { session: false }),
 	async (req, res) => {
-		const userId = req.user._id;
-		const coin = req.body.coin;
+		const { coin } = req.body;
 		try {
 			const user = await User.findByIdAndUpdate(
-				userId,
+				req.user._id,
 				{ $pull: { watchlist: coin } },
 				{ new: true }
 			);
 
 			if (!user) {
-				return res.status(404).json({ Error: "User not Found" });
+				return res.status(404).json({ Error: "User not found" });
 			}
 
-			return res.status(200).json({ watchlist: user.watchlist });
+			res.json({ watchlist: user.watchlist });
 		} catch (err) {
 			return res.status(500).json(err.message);
 		}
 	}
 );
 
+// Update portfolio (add/remove coins)
+// TODO: maybe add transaction history later
 app.put(
 	"/portfolio/update",
 	passport.authenticate("jwt", { session: false }),
 	async (req, res) => {
-		const userId = req.user._id;
 		const { coin, coinData } = req.body;
 
 		try {
+			// basic validation
 			if (
 				!coin ||
 				!coinData ||
 				typeof coinData.totalInvestment !== "number" ||
 				typeof coinData.coins !== "number"
 			) {
-				return res.status(400).json({ error: "Invalid input data" });
+				return res.status(400).json({ error: "Invalid data provided" });
 			}
 
-			const user = await User.findById(userId);
+			const user = await User.findById(req.user._id);
 			if (!user) {
 				return res.status(404).json({ error: "User not found" });
 			}
@@ -177,13 +182,14 @@ app.put(
 			if (existingCoinData) {
 				const newCoins = existingCoinData.coins + coinData.coins;
 
+				// Check if trying to sell more than owned
 				if (coinData.coins < 0) {
 					const sellAmount = Math.abs(coinData.coins);
 					const ownedCoins = existingCoinData.coins;
 
 					if (sellAmount > ownedCoins) {
 						return res.status(400).json({
-							error: `Cannot sell ${sellAmount} coins. You only own ${ownedCoins} coins.`,
+							error: `Can't sell ${sellAmount} coins. You only have ${ownedCoins} coins.`,
 						});
 					}
 				}
@@ -194,11 +200,13 @@ app.put(
 					let newTotalInvestment;
 
 					if (coinData.coins < 0) {
+						// Selling: adjust investment proportionally
 						const remainingRatio =
 							newCoins / existingCoinData.coins;
 						newTotalInvestment =
 							existingCoinData.totalInvestment * remainingRatio;
 					} else {
+						// Buying: add to investment
 						newTotalInvestment =
 							existingCoinData.totalInvestment +
 							coinData.totalInvestment;
@@ -213,7 +221,7 @@ app.put(
 					portfolio.set(coin, coinData);
 				} else if (coinData.coins < 0) {
 					return res.status(400).json({
-						error: "Cannot sell coins that are not in your portfolio",
+						error: "You don't own this coin",
 					});
 				}
 			}
@@ -221,9 +229,10 @@ app.put(
 			user.markModified("portfolio");
 
 			const updatedUser = await user.save();
-			return res.status(200).json(updatedUser.portfolio);
+			res.json(updatedUser.portfolio);
 		} catch (err) {
-			return res.status(500).json(err.message);
+			console.error(err);
+			res.status(500).json(err.message);
 		}
 	}
 );

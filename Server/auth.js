@@ -5,19 +5,21 @@ const ExtractJwt = require("passport-jwt").ExtractJwt;
 const User = require("./models/Users");
 require("dotenv").config();
 
+// Local strategy for username/password login
 passport.use(
 	new localStrategy(async (username, password, done) => {
 		try {
 			const user = await User.findOne({ username });
 			if (!user) {
-				return done(null, false, { message: "Username not found." });
+				return done(null, false, { message: "Username not found" });
 			}
 
-			const isPassword = await user.comparePassword(password);
-			if (isPassword) {
+			const isMatch = await user.comparePassword(password);
+			if (isMatch) {
+				// console.log("User authenticated:", username); // debug
 				return done(null, user);
 			} else {
-				return done(null, false, { message: "Incorrect password." });
+				return done(null, false, { message: "Wrong password" });
 			}
 		} catch (err) {
 			return done(err, false);
@@ -25,6 +27,7 @@ passport.use(
 	})
 );
 
+// JWT strategy for protected routes
 passport.use(
 	new JwtStrategy(
 		{
@@ -36,9 +39,8 @@ passport.use(
 				const user = await User.findById(payload.id);
 				if (user) {
 					return done(null, user);
-				} else {
-					return done(null, false);
 				}
+				return done(null, false);
 			} catch (err) {
 				return done(err, false);
 			}

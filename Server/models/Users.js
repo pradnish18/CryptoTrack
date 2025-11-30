@@ -8,37 +8,31 @@ const UsersSchema = new mongoose.Schema({
 		unique: true,
 		trim: true,
 	},
-
 	password: {
 		type: String,
 		required: true,
 	},
-
 	watchlist: {
 		type: [String],
-		required: true,
 		default: [],
 	},
-
 	portfolio: {
 		type: Map,
 		of: {
 			totalInvestment: {
 				type: Number,
-				required: true,
 				default: 0,
 			},
 			coins: {
 				type: Number,
-				required: true,
 				default: 0,
 			},
 		},
-
 		default: {},
 	},
 });
 
+// Hash password before saving
 UsersSchema.pre("save", async function (next) {
 	const user = this;
 	if (!user.isModified("password")) {
@@ -46,19 +40,18 @@ UsersSchema.pre("save", async function (next) {
 	}
 
 	try {
-		const salt = await bcrypt.genSalt(10);
-		const hashed = await bcrypt.hash(user.password, salt);
-		user.password = hashed;
+		const salt = await bcrypt.genSalt(10); // 10 rounds is good enough
+		user.password = await bcrypt.hash(user.password, salt);
 		next();
 	} catch (err) {
 		next(err);
 	}
 });
 
+// Compare password method
 UsersSchema.methods.comparePassword = async function (enteredPassword) {
 	try {
-		const isPassword = await bcrypt.compare(enteredPassword, this.password);
-		return isPassword;
+		return await bcrypt.compare(enteredPassword, this.password);
 	} catch (err) {
 		throw err;
 	}

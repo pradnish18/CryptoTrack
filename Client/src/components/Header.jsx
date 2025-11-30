@@ -23,10 +23,9 @@ const Header = ({ menu, toggleMenu, handleLogout }) => {
 				<NavLink
 					to="/"
 					className={({ isActive }) =>
-						`rounded-sm px-3 py-2 text-sm font-medium ${
-							isActive
-								? "bg-blue-200 text-blue-700 dark:bg-blue-700/20 dark:text-gray-100"
-								: "dark:text-gray-300 dark:hover:text-white dark:hover:bg-blue-500/1	0 text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
+						`rounded-sm px-3 py-2 text-sm font-medium ${isActive
+							? "bg-blue-200 text-blue-700 dark:bg-blue-700/20 dark:text-gray-100"
+							: "dark:text-gray-300 dark:hover:text-white dark:hover:bg-blue-500/1	0 text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
 						}`
 					}
 				>
@@ -37,10 +36,9 @@ const Header = ({ menu, toggleMenu, handleLogout }) => {
 						<NavLink
 							to="dashboard"
 							className={({ isActive }) =>
-								`rounded-sm px-3 py-2 text-sm font-medium ${
-									isActive
-										? "bg-blue-200 text-blue-700 dark:bg-blue-700/20 dark:text-gray-100"
-										: "dark:text-gray-300 dark:hover:text-white dark:hover:bg-blue-500/10 text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
+								`rounded-sm px-3 py-2 text-sm font-medium ${isActive
+									? "bg-blue-200 text-blue-700 dark:bg-blue-700/20 dark:text-gray-100"
+									: "dark:text-gray-300 dark:hover:text-white dark:hover:bg-blue-500/10 text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
 								}`
 							}
 						>
@@ -49,10 +47,9 @@ const Header = ({ menu, toggleMenu, handleLogout }) => {
 						<NavLink
 							to="watchlist"
 							className={({ isActive }) =>
-								`rounded-sm px-3 py-2 text-sm font-medium ${
-									isActive
-										? "bg-blue-200 text-blue-700 dark:bg-blue-700/20 dark:text-gray-100"
-										: "dark:text-gray-300 dark:hover:text-white dark:hover:bg-blue-500/10 text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
+								`rounded-sm px-3 py-2 text-sm font-medium ${isActive
+									? "bg-blue-200 text-blue-700 dark:bg-blue-700/20 dark:text-gray-100"
+									: "dark:text-gray-300 dark:hover:text-white dark:hover:bg-blue-500/10 text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
 								}`
 							}
 						>
@@ -63,7 +60,7 @@ const Header = ({ menu, toggleMenu, handleLogout }) => {
 
 						<button
 							onClick={handleLogout}
-							className="rounded-sm px-3 py-2 text-sm font-medium cursor-pointer text-white bg-blue-600 hover:bg-blue-700"
+							className="rounded-sm px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
 						>
 							Logout
 						</button>
@@ -73,10 +70,9 @@ const Header = ({ menu, toggleMenu, handleLogout }) => {
 						<NavLink
 							to="login"
 							className={({ isActive }) =>
-								`rounded-sm px-3 py-2 text-sm font-medium cursor-pointer ${
-									isActive
-										? "bg-blue-200 text-blue-700 dark:bg-blue-700/20 dark:text-gray-100"
-										: "dark:text-gray-300 dark:hover:text-white dark:hover:bg-blue-500/10 text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
+								`rounded-sm px-3 py-2 text-sm font-medium cursor-pointer ${isActive
+									? "bg-blue-200 text-blue-700 dark:bg-blue-700/20 dark:text-gray-100"
+									: "dark:text-gray-300 dark:hover:text-white dark:hover:bg-blue-500/10 text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
 								}`
 							}
 						>
@@ -86,10 +82,9 @@ const Header = ({ menu, toggleMenu, handleLogout }) => {
 						<NavLink
 							to="signup"
 							className={({ isActive }) =>
-								`rounded-sm px-3 py-2 text-sm font-medium cursor-pointer text-white ${
-									isActive
-										? "bg-blue-700"
-										: "bg-blue-600 hover:bg-blue-700"
+								`rounded-sm px-3 py-2 text-sm font-medium cursor-pointer text-white ${isActive
+									? "bg-blue-700"
+									: "bg-blue-600 hover:bg-blue-700"
 								}`
 							}
 						>

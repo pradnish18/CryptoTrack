@@ -32,14 +32,7 @@ const App = () => {
 		setWatchlist([]);
 		setPortfolio({});
 		logout();
-		toast.success("Logged out successfully", {
-			position: "top-right",
-			autoClose: 3000,
-			hideProgressBar: false,
-			closeOnClick: true,
-			pauseOnHover: false,
-			draggable: true,
-		});
+		toast.success("Logged out successfully");
 		navigate("/");
 	};
 
@@ -65,14 +58,14 @@ const App = () => {
 		}
 	};
 
-	function toggleForm(coin = null) {
+	const toggleForm = (coin = null) => {
 		if (coin) {
 			setCoinData(coin);
 		} else {
 			setCoinData({});
 		}
-		setForm((form) => !form);
-	}
+		setForm(!form);
+	};
 
 	async function addCoin(id, totalInvestment, coins) {
 		try {
@@ -83,14 +76,7 @@ const App = () => {
 			const updatedPortfolio = await portfolioAPI.update(id, coinData);
 			setPortfolio(updatedPortfolio);
 			toggleForm();
-			toast.success("Portfolio updated successfully.", {
-				position: "top-right",
-				autoClose: 3000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: false,
-				draggable: true,
-			});
+			toast.success("Portfolio updated!");
 		} catch (error) {
 			console.error("Failed to add coin:", error);
 		}
@@ -105,14 +91,7 @@ const App = () => {
 			const updatedPortfolio = await portfolioAPI.update(id, coinData);
 			setPortfolio(updatedPortfolio);
 			toggleForm();
-			toast.success("Portfolio updated successfully.", {
-				position: "top-right",
-				autoClose: 3000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: false,
-				draggable: true,
-			});
+			toast.success("Portfolio updated!");
 		} catch (error) {
 			console.error("Failed to remove coin:", error);
 		}
@@ -124,45 +103,24 @@ const App = () => {
 		setMenu(false);
 	}, [location]);
 
-	function toggleMenu() {
-		setMenu((menu) => !menu);
-	}
+	const toggleMenu = () => {
+		setMenu(!menu);
+	};
 
 	async function toggleWatchlist(coinId, coinName = null) {
 		try {
 			if (!watchlist.includes(coinId)) {
 				const response = await watchlistAPI.add(coinId);
 				setWatchlist(response.watchlist);
-				toast.success(`${coinName || "Coin"} was added to watchlist`, {
-					position: "top-right",
-					autoClose: 3000,
-					hideProgressBar: false,
-					closeOnClick: true,
-					pauseOnHover: false,
-					draggable: true,
-				});
+				toast.success(`${coinName || "Coin"} added to watchlist`);
 			} else {
 				const response = await watchlistAPI.remove(coinId);
 				setWatchlist(response.watchlist);
-				toast.info(`${coinName || "Coin"} was removed from watchlist`, {
-					position: "top-right",
-					autoClose: 3000,
-					hideProgressBar: false,
-					closeOnClick: true,
-					pauseOnHover: false,
-					draggable: true,
-				});
+				toast.info(`${coinName || "Coin"} removed from watchlist`);
 			}
 		} catch (error) {
 			console.error("Failed to update watchlist:", error);
-			toast.error("Failed to update watchlist. Please try again.", {
-				position: "top-right",
-				autoClose: 3000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: true,
-			});
+			toast.error("Couldn't update watchlist. Try again?");
 		}
 	}
 
