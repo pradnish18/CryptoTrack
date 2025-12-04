@@ -1,11 +1,18 @@
 const express = require("express");
 const cors = require("cors");
-const db = require("./db");
 require("dotenv").config();
-const jwt = require("jsonwebtoken");
-const User = require("./models/Users");
 const PORT = process.env.PORT || 3000;
 const app = express();
+
+// Static credentials - NO DATABASE
+const STATIC_USER = {
+	username: "admin",
+	password: "password123"
+};
+
+// In-memory storage for user data (resets on server restart)
+let userPortfolio = {};
+let userWatchlist = [];
 
 // CORS setup for frontend
 app.use(
@@ -16,225 +23,130 @@ app.use(
 );
 
 app.use(express.json());
-const passport = require("./auth");
-app.use(passport.initialize());
 
-app.get("/", (req, res) => {
-	res.send("API is running");
-});
+// Simple auth middleware
+const authenticateToken = (req, res, next) => {
+	const authHeader = req.headers["authorization"];
+	const token = authHeader && authHeader.split(" ")[1];
 
-// User registration endpoint
-app.post("/register", async (req, res) => {
+	if (!token) {
+		return res.status(401).json({ error: "Access denied" });
+	}
+
+	// For static auth, we just check if token matches our static username
+	if (token === STATIC_USER.username) {
+		req.user = { username: STATIC_USER.username };
+		next();
+	} else {
+		res.status(403).json({ error: "Invalid token" });
+	}
+};
+
+// Login endpoint - static credentials
+app.post("/login", (req, res) => {
 	const { username, password } = req.body;
-	try {
-		const user = await User.findOne({ username });
-		if (user) {
-			return res.status(400).json({ Error: "User already exists" });
-		}
 
-		const newUser = new User({ username, password });
-		await newUser.save();
-		res.status(200).json({ message: "User registered successfully" });
-	} catch (err) {
-		console.error("Registration error:", err);
-		return res.status(500).json(err);
-	}
-});
+	// Debug logging
+	console.log("Login attempt received:");
+	console.log("  Username:", username);
+	console.log("  Password:", password);
+	console.log("  Expected username:", STATIC_USER.username);
+	console.log("  Expected password:", STATIC_USER.password);
+	console.log("  Match:", username === STATIC_USER.username && password === STATIC_USER.password);
 
-// Login endpoint
-app.post("/login", (req, res, next) => {
-	passport.authenticate("local", { session: false }, (err, user, info) => {
-		if (err) {
-			return res.status(500).json({ error: "Something went wrong" });
-		}
-		if (!user) {
-			return res.status(400).json({ error: "Invalid username or password" });
-		}
-
-		const payload = { id: user._id, username: user.username };
-		const token = jwt.sign(payload, process.env.JWT_SECRET, {
-			expiresIn: "24h",
-		});
-
+	if (username === STATIC_USER.username && password === STATIC_USER.password) {
+		// Return the username as token (simple static implementation)
 		res.json({
-			message: "Login successful",
-			token: token,
-			user: {
-				id: user._id,
-				username: user.username,
-			},
+			token: STATIC_USER.username,
+			user: { username: STATIC_USER.username }
 		});
-	})(req, res, next);
+	} else {
+		res.status(401).json({ error: "Invalid credentials" });
+	}
 });
 
-// Get user's watchlist
-app.get(
-	"/watchlist",
-	passport.authenticate("jwt", { session: false }),
-	async (req, res) => {
-		try {
-			const userId = req.user._id;
-			const user = await User.findById(userId);
-			if (!user) {
-				return res.status(404).json({ Error: "User not found" });
-			}
+// Register endpoint - disabled (static user only)
+app.post("/register", (req, res) => {
+	res.status(400).json({
+		error: "Registration is disabled. Please use the static credentials (username: admin, password: password123)"
+	});
+});
 
-			res.json({ watchlist: user.watchlist });
-		} catch (err) {
-			res.status(500).json(err);
-		}
+// Portfolio endpoints
+app.get("/portfolio", authenticateToken, (req, res) => {
+	// Return portfolio object directly, not wrapped
+	res.json(userPortfolio);
+});
+
+app.put("/portfolio/update", authenticateToken, (req, res) => {
+	const { coin, coinData } = req.body;
+
+	if (!coin || !coinData) {
+		return res.status(400).json({ error: "Coin and coinData are required" });
 	}
-);
 
-// Get user's portfolio
-app.get(
-	"/portfolio",
-	passport.authenticate("jwt", { session: false }),
-	async (req, res) => {
-		try {
-			const user = await User.findById(req.user._id);
-			if (!user) {
-				return res.status(404).json({ Error: "User not found" });
-			}
-
-			res.json(user.portfolio);
-		} catch (err) {
-			res.status(500).json(err);
-		}
+	// Merge with existing data instead of replacing
+	if (userPortfolio[coin]) {
+		userPortfolio[coin] = {
+			totalInvestment: userPortfolio[coin].totalInvestment + coinData.totalInvestment,
+			coins: userPortfolio[coin].coins + coinData.coins
+		};
+	} else {
+		userPortfolio[coin] = coinData;
 	}
-);
 
-// Add coin to watchlist
-app.put(
-	"/watchlist/add",
-	passport.authenticate("jwt", { session: false }),
-	async (req, res) => {
-		const { coin } = req.body;
-		try {
-			const user = await User.findByIdAndUpdate(
-				req.user._id,
-				{ $addToSet: { watchlist: coin } },
-				{ new: true }
-			);
-
-			if (!user) {
-				return res.status(404).json({ Error: "User not found" });
-			}
-
-			res.json({ watchlist: user.watchlist });
-		} catch (err) {
-			res.status(500).json(err.message);
-		}
+	// Remove coin if coins become 0 or negative
+	if (userPortfolio[coin].coins <= 0) {
+		delete userPortfolio[coin];
 	}
-);
 
-// Remove coin from watchlist
-app.put(
-	"/watchlist/remove",
-	passport.authenticate("jwt", { session: false }),
-	async (req, res) => {
-		const { coin } = req.body;
-		try {
-			const user = await User.findByIdAndUpdate(
-				req.user._id,
-				{ $pull: { watchlist: coin } },
-				{ new: true }
-			);
+	// Return portfolio object directly, not wrapped
+	res.json(userPortfolio);
+});
 
-			if (!user) {
-				return res.status(404).json({ Error: "User not found" });
-			}
+// Watchlist endpoints
+app.get("/watchlist", authenticateToken, (req, res) => {
+	res.json({ watchlist: userWatchlist });
+});
 
-			res.json({ watchlist: user.watchlist });
-		} catch (err) {
-			return res.status(500).json(err.message);
-		}
+app.put("/watchlist/add", authenticateToken, (req, res) => {
+	const { coin } = req.body;
+
+	if (!coin) {
+		return res.status(400).json({ error: "Coin is required" });
 	}
-);
 
-// Update portfolio (add/remove coins)
-// TODO: maybe add transaction history later
-app.put(
-	"/portfolio/update",
-	passport.authenticate("jwt", { session: false }),
-	async (req, res) => {
-		const { coin, coinData } = req.body;
-
-		try {
-			// basic validation
-			if (
-				!coin ||
-				!coinData ||
-				typeof coinData.totalInvestment !== "number" ||
-				typeof coinData.coins !== "number"
-			) {
-				return res.status(400).json({ error: "Invalid data provided" });
-			}
-
-			const user = await User.findById(req.user._id);
-			if (!user) {
-				return res.status(404).json({ error: "User not found" });
-			}
-
-			const portfolio = user.portfolio;
-			const existingCoinData = portfolio.get(coin);
-
-			if (existingCoinData) {
-				const newCoins = existingCoinData.coins + coinData.coins;
-
-				// Check if trying to sell more than owned
-				if (coinData.coins < 0) {
-					const sellAmount = Math.abs(coinData.coins);
-					const ownedCoins = existingCoinData.coins;
-
-					if (sellAmount > ownedCoins) {
-						return res.status(400).json({
-							error: `Can't sell ${sellAmount} coins. You only have ${ownedCoins} coins.`,
-						});
-					}
-				}
-
-				if (newCoins <= 0) {
-					portfolio.delete(coin);
-				} else {
-					let newTotalInvestment;
-
-					if (coinData.coins < 0) {
-						// Selling: adjust investment proportionally
-						const remainingRatio =
-							newCoins / existingCoinData.coins;
-						newTotalInvestment =
-							existingCoinData.totalInvestment * remainingRatio;
-					} else {
-						// Buying: add to investment
-						newTotalInvestment =
-							existingCoinData.totalInvestment +
-							coinData.totalInvestment;
-					}
-
-					existingCoinData.totalInvestment = newTotalInvestment;
-					existingCoinData.coins = newCoins;
-					portfolio.set(coin, existingCoinData);
-				}
-			} else {
-				if (coinData.totalInvestment > 0 && coinData.coins > 0) {
-					portfolio.set(coin, coinData);
-				} else if (coinData.coins < 0) {
-					return res.status(400).json({
-						error: "You don't own this coin",
-					});
-				}
-			}
-
-			user.markModified("portfolio");
-
-			const updatedUser = await user.save();
-			res.json(updatedUser.portfolio);
-		} catch (err) {
-			console.error(err);
-			res.status(500).json(err.message);
-		}
+	if (!userWatchlist.includes(coin)) {
+		userWatchlist.push(coin);
 	}
-);
 
-app.listen(PORT);
+	res.json({
+		message: "Coin added to watchlist",
+		watchlist: userWatchlist
+	});
+});
+
+app.put("/watchlist/remove", authenticateToken, (req, res) => {
+	const { coin } = req.body;
+
+	if (!coin) {
+		return res.status(400).json({ error: "Coin is required" });
+	}
+
+	userWatchlist = userWatchlist.filter(c => c !== coin);
+
+	res.json({
+		message: "Coin removed from watchlist",
+		watchlist: userWatchlist
+	});
+});
+
+// Root endpoint
+app.get("/", (req, res) => {
+	res.send("CryptoTrack API is running with static authentication");
+});
+
+app.listen(PORT, () => {
+	console.log(`Server is running on port ${PORT}`);
+	console.log(`Static credentials - Username: ${STATIC_USER.username}, Password: ${STATIC_USER.password}`);
+});
