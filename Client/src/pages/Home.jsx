@@ -1,9 +1,6 @@
 import { useState } from "react";
 import Table from "../components/Table";
 import Form from "../components/Form";
-import LoginWarning from "../components/LoginWarning";
-import CoinGeckoAttribution from "../components/CoinGeckoAttribution";
-import { useAuth } from "../context/AuthContext";
 import useTopCoins from "../hooks/useTopCoins";
 import Searchbar from "../components/Searchbar";
 
@@ -15,7 +12,6 @@ const Home = ({
 	toggleForm,
 	coinData,
 }) => {
-	const { isAuthenticated } = useAuth();
 	const { coins, loading, error } = useTopCoins();
 	const [search, setSearch] = useState("");
 
@@ -42,7 +38,6 @@ const Home = ({
 							setSearchValue={setSearch}
 							placeholder="Search crypto.."
 						/>
-						<CoinGeckoAttribution />
 					</div>
 
 					<div className="w-full max-w-6xl mx-auto overflow-x-auto [scrollbar-width:none]">
@@ -57,7 +52,7 @@ const Home = ({
 						/>
 					</div>
 				</div>
-			) : isAuthenticated ? (
+			) : (
 				<Form
 					title={"Add to Portfolio"}
 					buttonText={"Add"}
@@ -65,8 +60,6 @@ const Home = ({
 					toggleForm={toggleForm}
 					action={addCoin}
 				/>
-			) : (
-				<LoginWarning toggleForm={toggleForm} />
 			)}
 		</>
 	);

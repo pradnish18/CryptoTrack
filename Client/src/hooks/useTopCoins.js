@@ -12,11 +12,12 @@ export default function useTopCoins() {
 			try {
 				const response = await fetch(COINGECKO_TOP_COINS_API);
 				if (!response.ok) {
-					throw new Error("An Error Occured");
+					throw new Error(`Failed to fetch: ${response.status}`);
 				}
 				const data = await response.json();
 				setCoins(data);
 			} catch (err) {
+				console.error("Error fetching top coins:", err);
 				setError(err.message);
 			} finally {
 				setLoading(false);

@@ -1,6 +1,5 @@
 import Table from "../components/Table";
 import Form from "../components/Form";
-import CoinGeckoAttribution from "../components/CoinGeckoAttribution";
 import useWatchlist from "../hooks/useWatchlist";
 
 const Watchlist = ({
@@ -29,9 +28,6 @@ const Watchlist = ({
 					}
 					toggleForm={toggleForm}
 				/>
-			</div>
-			<div className="text-center mt-1">
-				<CoinGeckoAttribution />
 			</div>
 		</>
 	) : (

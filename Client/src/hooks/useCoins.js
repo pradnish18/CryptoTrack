@@ -19,14 +19,16 @@ export default function useCoins(portfolio) {
 
 			try {
 				const coinIds = portfolioCoins.join(",");
-				// Using CoinGecko free API - might hit rate limits with heavy use
 				const res = await fetch(
 					`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinIds}&order=market_cap_desc&sparkline=false`
 				);
-				if (!res.ok) throw new Error("An error occured");
+				if (!res.ok) {
+					throw new Error(`Failed to fetch: ${res.status}`);
+				}
 				const data = await res.json();
 				setCoins(data);
 			} catch (err) {
+				console.error("Error fetching portfolio coins:", err);
 				setError(err.message);
 			} finally {
 				setLoading(false);

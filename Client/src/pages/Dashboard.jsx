@@ -4,7 +4,6 @@ import { useState } from "react";
 import Form from "../components/Form";
 import PortfolioTable from "../components/PortfolioTable";
 import TopCoins from "../components/TopCoins";
-import CoinGeckoAttribution from "../components/CoinGeckoAttribution";
 import { useCurrency } from "../context/CurrencyContext";
 import useCoins from "../hooks/useCoins";
 import useChart from "../hooks/useChart";
@@ -58,9 +57,8 @@ const Dashboard = ({
 						{formatCurrency(currentValue * currency[1])}
 					</p>
 					<div
-						className={`flex items-center gap-2 font-semibold ${
-							profit < 0 ? "text-red-600" : "text-green-600"
-						}`}
+						className={`flex items-center gap-2 font-semibold ${profit < 0 ? "text-red-600" : "text-green-600"
+							}`}
 					>
 						{profit < 0 ? <TrendingDownIcon /> : <TrendingUpIcon />}
 						<span>{profit.toFixed(2)}%</span>
@@ -144,9 +142,6 @@ const Dashboard = ({
 					totalInvestment={totalInvestment}
 					currentValue={currentValue}
 				/>
-				<div className="text-center mt-2">
-					<CoinGeckoAttribution />
-				</div>
 			</div>
 		</div>
 	) : (

@@ -1,14 +1,12 @@
 import StarOutlineIcon from "@mui/icons-material/StarOutline";
 import StarIcon from "@mui/icons-material/Star";
 import { useCurrency } from "../context/CurrencyContext";
-import { useAuth } from "../context/AuthContext";
 import getColor from "../utils/color";
 
 const CoinRow = ({ coin, isStarred, toggleWatchlist, toggleForm }) => {
-	const { isAuthenticated } = useAuth();
 	const { currency, formatCurrency } = useCurrency();
 
-    const color = getColor(coin.price_change_percentage_24h);
+	const color = getColor(coin.price_change_percentage_24h);
 	return (
 		<tr className="border-b border-gray-200 hover:bg-gray-50 transition-all duration-150 dark:hover:bg-gray-800 dark:border-b dark:border-gray-700">
 			<td className="px-6 py-4 text-center font-medium text-gray-700 dark:text-white">
@@ -34,31 +32,26 @@ const CoinRow = ({ coin, isStarred, toggleWatchlist, toggleForm }) => {
 			<td className="px-6 py-4 font-medium">
 				{formatCurrency(coin.current_price * currency[1], 6)}
 			</td>
-            <td className={`px-6 py-4 font-medium ${color}`}>
-                {coin.price_change_percentage_24h != null
-                    ? coin.price_change_percentage_24h.toFixed(2)
-                    : "-"}
-                %
-            </td>
-            <td className="px-6 py-4 font-medium text-gray-800 dark:text-white">
-                {coin.market_cap != null
-                    ? formatCurrency((coin.market_cap * currency[1]).toFixed(2), 6)
-                    : "-"}
-            </td>
+			<td className={`px-6 py-4 font-medium ${color}`}>
+				{coin.price_change_percentage_24h != null
+					? coin.price_change_percentage_24h.toFixed(2)
+					: "-"}
+				%
+			</td>
+			<td className="px-6 py-4 font-medium text-gray-800 dark:text-white">
+				{coin.market_cap != null
+					? formatCurrency((coin.market_cap * currency[1]).toFixed(2), 6)
+					: "-"}
+			</td>
 			<td className="px-6 py-4">
 				<div className="flex items-center gap-2">
 					<button
-						className={`cursor-pointer ${
-							!isStarred
-								? "text-gray-400 hover:text-amber-300 transition-all duration-200"
-								: "text-amber-300"
-						}`}
+						className={`cursor-pointer ${!isStarred
+							? "text-gray-400 hover:text-amber-300 transition-all duration-200"
+							: "text-amber-300"
+							}`}
 						onClick={() => {
-							if (isAuthenticated) {
-								toggleWatchlist(coin.id, coin.name);
-							} else {
-								toggleForm();
-							}
+							toggleWatchlist(coin.id, coin.name);
 						}}
 					>
 						{isStarred ? <StarIcon /> : <StarOutlineIcon />}

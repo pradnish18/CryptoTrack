@@ -3,60 +3,54 @@ import {
 	Routes,
 	Route,
 	useLocation,
-	Navigate,
-	useNavigate,
 } from "react-router-dom";
 import Header from "./components/Header";
 import Menu from "./components/Menu";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
 import Watchlist from "./pages/Watchlist";
 import { AnimatePresence } from "framer-motion";
-import { useAuth } from "./context/AuthContext";
-import { portfolioAPI, watchlistAPI } from "./services/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
 	const [menu, setMenu] = useState(false);
-	const { isAuthenticated, loading, logout } = useAuth();
 	const [watchlist, setWatchlist] = useState([]);
 	const [form, setForm] = useState(false);
 	const [coinData, setCoinData] = useState({});
 	const [portfolio, setPortfolio] = useState({});
-	const navigate = useNavigate();
 
-	const handleLogout = () => {
-		setWatchlist([]);
-		setPortfolio({});
-		logout();
-		toast.success("Logged out successfully");
-		navigate("/");
-	};
-
+	// Load data from localStorage on mount
 	useEffect(() => {
-		if (isAuthenticated) {
-			loadUserData();
-		} else {
-			setWatchlist([]);
-			setPortfolio({});
-		}
-	}, [isAuthenticated]);
+		const savedWatchlist = localStorage.getItem("cryptotrack_watchlist");
+		const savedPortfolio = localStorage.getItem("cryptotrack_portfolio");
 
-	const loadUserData = async () => {
-		try {
-			const [portfolioData, watchlistData] = await Promise.all([
-				portfolioAPI.get(),
-				watchlistAPI.get(),
-			]);
-			setPortfolio(portfolioData);
-			setWatchlist(watchlistData.watchlist);
-		} catch (error) {
-			console.error("Failed to load user data:", error);
+		if (savedWatchlist) {
+			try {
+				setWatchlist(JSON.parse(savedWatchlist));
+			} catch (e) {
+				console.error("Failed to parse watchlist from localStorage");
+			}
 		}
-	};
+
+		if (savedPortfolio) {
+			try {
+				setPortfolio(JSON.parse(savedPortfolio));
+			} catch (e) {
+				console.error("Failed to parse portfolio from localStorage");
+			}
+		}
+	}, []);
+
+	// Save watchlist to localStorage whenever it changes
+	useEffect(() => {
+		localStorage.setItem("cryptotrack_watchlist", JSON.stringify(watchlist));
+	}, [watchlist]);
+
+	// Save portfolio to localStorage whenever it changes
+	useEffect(() => {
+		localStorage.setItem("cryptotrack_portfolio", JSON.stringify(portfolio));
+	}, [portfolio]);
 
 	const toggleForm = (coin = null) => {
 		if (coin) {
@@ -67,34 +61,55 @@ const App = () => {
 		setForm(!form);
 	};
 
-	async function addCoin(id, totalInvestment, coins) {
-		try {
-			const coinData = {
-				totalInvestment: parseFloat(totalInvestment),
-				coins: parseFloat(coins),
+	function addCoin(id, totalInvestment, coins) {
+		const coinData = {
+			totalInvestment: parseFloat(totalInvestment),
+			coins: parseFloat(coins),
+		};
+
+		const updatedPortfolio = { ...portfolio };
+
+		if (updatedPortfolio[id]) {
+			// Update existing coin
+			updatedPortfolio[id] = {
+				totalInvestment: updatedPortfolio[id].totalInvestment + coinData.totalInvestment,
+				coins: updatedPortfolio[id].coins + coinData.coins,
 			};
-			const updatedPortfolio = await portfolioAPI.update(id, coinData);
-			setPortfolio(updatedPortfolio);
-			toggleForm();
-			toast.success("Portfolio updated!");
-		} catch (error) {
-			console.error("Failed to add coin:", error);
+		} else {
+			// Add new coin
+			updatedPortfolio[id] = coinData;
 		}
+
+		setPortfolio(updatedPortfolio);
+		toggleForm();
+		toast.success("Portfolio updated!");
 	}
 
-	async function removeCoin(id, totalInvestment, coins) {
-		try {
-			const coinData = {
-				totalInvestment: -parseFloat(totalInvestment),
-				coins: -parseFloat(coins),
-			};
-			const updatedPortfolio = await portfolioAPI.update(id, coinData);
-			setPortfolio(updatedPortfolio);
-			toggleForm();
-			toast.success("Portfolio updated!");
-		} catch (error) {
-			console.error("Failed to remove coin:", error);
+	function removeCoin(id, totalInvestment, coins) {
+		const updatedPortfolio = { ...portfolio };
+
+		if (updatedPortfolio[id]) {
+			const coinsToRemove = parseFloat(coins);
+			const investmentToRemove = parseFloat(totalInvestment);
+
+			const newCoins = updatedPortfolio[id].coins - coinsToRemove;
+
+			if (newCoins <= 0) {
+				// Remove coin completely
+				delete updatedPortfolio[id];
+			} else {
+				// Reduce proportionally
+				const remainingRatio = newCoins / updatedPortfolio[id].coins;
+				updatedPortfolio[id] = {
+					totalInvestment: updatedPortfolio[id].totalInvestment * remainingRatio,
+					coins: newCoins,
+				};
+			}
 		}
+
+		setPortfolio(updatedPortfolio);
+		toggleForm();
+		toast.success("Portfolio updated!");
 	}
 
 	const location = useLocation();
@@ -107,29 +122,14 @@ const App = () => {
 		setMenu(!menu);
 	};
 
-	async function toggleWatchlist(coinId, coinName = null) {
-		try {
-			if (!watchlist.includes(coinId)) {
-				const response = await watchlistAPI.add(coinId);
-				setWatchlist(response.watchlist);
-				toast.success(`${coinName || "Coin"} added to watchlist`);
-			} else {
-				const response = await watchlistAPI.remove(coinId);
-				setWatchlist(response.watchlist);
-				toast.info(`${coinName || "Coin"} removed from watchlist`);
-			}
-		} catch (error) {
-			console.error("Failed to update watchlist:", error);
-			toast.error("Couldn't update watchlist. Try again?");
+	function toggleWatchlist(coinId, coinName = null) {
+		if (!watchlist.includes(coinId)) {
+			setWatchlist([...watchlist, coinId]);
+			toast.success(`${coinName || "Coin"} added to watchlist`);
+		} else {
+			setWatchlist(watchlist.filter(id => id !== coinId));
+			toast.info(`${coinName || "Coin"} removed from watchlist`);
 		}
-	}
-
-	if (loading) {
-		return (
-			<div className="min-h-screen bg-gray-50 flex items-center justify-center">
-				Loading...
-			</div>
-		);
 	}
 
 	return (
@@ -137,11 +137,10 @@ const App = () => {
 			<Header
 				menu={menu}
 				toggleMenu={toggleMenu}
-				handleLogout={handleLogout}
 			/>
 
 			<AnimatePresence>
-				{menu && <Menu handleLogout={handleLogout} />}
+				{menu && <Menu />}
 			</AnimatePresence>
 			<Routes>
 				<Route
@@ -160,57 +159,29 @@ const App = () => {
 				<Route
 					path="/dashboard"
 					element={
-						isAuthenticated ? (
-							<Dashboard
-								watchlist={watchlist}
-								toggleWatchlist={toggleWatchlist}
-								portfolio={portfolio}
-								addCoin={addCoin}
-								form={form}
-								toggleForm={toggleForm}
-								coinData={coinData}
-								removeCoin={removeCoin}
-							/>
-						) : (
-							<Navigate to="/login" />
-						)
+						<Dashboard
+							watchlist={watchlist}
+							toggleWatchlist={toggleWatchlist}
+							portfolio={portfolio}
+							addCoin={addCoin}
+							form={form}
+							toggleForm={toggleForm}
+							coinData={coinData}
+							removeCoin={removeCoin}
+						/>
 					}
 				/>
 				<Route
 					path="/watchlist"
 					element={
-						isAuthenticated ? (
-							<Watchlist
-								watchlist={watchlist}
-								toggleForm={toggleForm}
-								toggleWatchlist={toggleWatchlist}
-								addCoin={addCoin}
-								form={form}
-								coinData={coinData}
-							/>
-						) : (
-							<Navigate to="/login" />
-						)
-					}
-				/>
-				<Route
-					path="/login"
-					element={
-						isAuthenticated ? (
-							<Navigate to="/dashboard" />
-						) : (
-							<Login toggleForm={toggleForm} form={form} />
-						)
-					}
-				/>
-				<Route
-					path="/signup"
-					element={
-						isAuthenticated ? (
-							<Navigate to="/dashboard" />
-						) : (
-							<SignUp />
-						)
+						<Watchlist
+							watchlist={watchlist}
+							toggleForm={toggleForm}
+							toggleWatchlist={toggleWatchlist}
+							addCoin={addCoin}
+							form={form}
+							coinData={coinData}
+						/>
 					}
 				/>
 			</Routes>
