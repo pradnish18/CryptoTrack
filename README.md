@@ -50,14 +50,6 @@ The project is built with the MERN stack and other modern technologies:
 <img src="./images/home.png" alt="Home Page" width="800px">
 Search and view top cryptocurrencies, add to watchlist or portfolio.
 
-### Login Page
-<img src="./images/login.png" alt="Login Page" width="800px">
-Login for registered users.
-
-### Sign Up Page
-<img src="./images/signup.png" alt="Sign Up Page" width="800px">
-Register a new account.
-
 ### Dashboard
 <img src="./images/dashboard-top.png" alt="Dashboard - Top" width="800px">
 <br>
