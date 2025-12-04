@@ -34,7 +34,6 @@ The project is built with the MERN stack and other modern technologies:
 
 - **Frontend:** React, Tailwind CSS
 - **Backend:** Node.js, Express.js
-- **Database:** MongoDB (with Mongoose)
 - **Authentication:** JWT, Passport.js
 - **APIs:** CoinGecko (crypto data), Frankfurter (currency conversion)
 - **Key Libraries:**
@@ -80,7 +79,6 @@ Follow these instructions to set up and run the project locally on your machine.
 
 - Node.js (v18 or later recommended)
 - Git
-- MongoDB Community Server
 
 ### 1. Clone the Repository
 
