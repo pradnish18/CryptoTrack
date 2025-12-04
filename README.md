@@ -96,18 +96,11 @@ cd Server
 npm install
 ```
 
-#### Setup Local MongoDB
-
-1.  Download and install [MongoDB Community Server](https://www.mongodb.com/try/download/community) if you haven't already.
-2.  Start the MongoDB service on your machine. On most systems, you can run `mongod` in a terminal.
-3.  The backend will connect to the default local URI.
-
 #### Environment Variables
 
 Create a `.env` file in the `Server` directory and add the following variables.
 
 ```env
-MONGODB_URI="mongodb://127.0.0.1:27017/cryptotrack"
 PORT=3000
 CLIENT="http://localhost:5173"
 JWT_SECRET="YOUR_JWT_SECRET"
