@@ -142,7 +142,3 @@ The application should now be running at **http://localhost:5173**.
 
 - Cryptocurrency data provided by [CoinGecko API](https://www.coingecko.com/en/api).
 - Currency conversion powered by [Frankfurter API](https://www.frankfurter.app/).
-
-## Contact
-
-For any questions or suggestions, please reach out to [joy.mascarenhas@outlook.com](mailto:joy.mascarenhas@outlook.com).
