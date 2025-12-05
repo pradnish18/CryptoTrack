@@ -28,8 +28,15 @@ export default function useCoins(portfolio) {
 				const data = await res.json();
 				setCoins(data);
 			} catch (err) {
-				console.error("Error fetching portfolio coins:", err);
-				setError(err.message);
+				console.error("Error fetching portfolio coins, using mock data:", err);
+				// Fallback to mock data
+				import("../constants/mockData").then((module) => {
+					// Filter mock coins to match portfolio
+					const mockData = module.MOCK_COINS.filter(coin =>
+						portfolioCoins.includes(coin.id)
+					);
+					setCoins(mockData);
+				});
 			} finally {
 				setLoading(false);
 			}

@@ -4,7 +4,9 @@
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "node server.js"
+		"start": "node server.js",
+		"json-server": "json-server --watch db.json --port 3001",
+		"dev": "json-server --watch db.json --port 3001"
 	},
 	"keywords": [],
 	"author": "",
@@ -13,7 +15,8 @@
 	"dependencies": {
 		"cors": "^2.8.5",
 		"dotenv": "^17.2.0",
-		"express": "^5.1.0"
+		"express": "^5.1.0",
+		"json-server": "^1.0.0-beta.3"
 	},
 	"devDependencies": {
 		"nodemon": "^3.1.10"

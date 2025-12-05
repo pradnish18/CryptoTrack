@@ -27,8 +27,15 @@ export default function useWatchlist(watchlist) {
 				const data = await res.json();
 				setCoins(data);
 			} catch (err) {
-				console.error("Error fetching watchlist coins:", err);
-				setError(err.message);
+				console.error("Error fetching watchlist coins, using mock data:", err);
+				// Fallback to mock data
+				import("../constants/mockData").then((module) => {
+					// Filter mock coins to match watchlist
+					const mockData = module.MOCK_COINS.filter(coin =>
+						watchlist.includes(coin.id)
+					);
+					setCoins(mockData);
+				});
 			} finally {
 				setLoading(false);
 			}

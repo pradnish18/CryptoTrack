@@ -2,98 +2,103 @@ import { NavLink } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import CurrencySelector from "./CurrencySelector";
-import BrightnessMediumIcon from "@mui/icons-material/BrightnessMedium";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
 import useTheme from "../hooks/useTheme";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import { useAuth } from "../context/AuthContext";
 
 const Header = ({ menu, toggleMenu }) => {
-	const { theme, setTheme } = useTheme();
+	const { theme, toggleTheme } = useTheme();
+	const { user, logout } = useAuth();
 
 	return (
-		<div className="bg-white shadow-md h-16 flex justify-between items-center px-4 select-none z-40 sticky top-0 dark:bg-gray-800 dark:border-b dark:border-gray-800">
-			<NavLink
-				to="/"
-				className="text-2xl font-bold text-blue-700 dark:text-blue-500"
-			>
-				CryptoTrack
-			</NavLink>
-			<ul className="hidden sm:flex items-center gap-4">
-				<NavLink
-					to="/"
-					className={({ isActive }) =>
-						`rounded-sm px-3 py-2 text-sm font-medium ${isActive
-							? "bg-blue-200 text-blue-700 dark:bg-blue-700/20 dark:text-gray-100"
-							: "dark:text-gray-300 dark:hover:text-white dark:hover:bg-blue-500/10 text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
-						}`
-					}
-				>
-					Home
-				</NavLink>
-				<NavLink
-					to="dashboard"
-					className={({ isActive }) =>
-						`rounded-sm px-3 py-2 text-sm font-medium ${isActive
-							? "bg-blue-200 text-blue-700 dark:bg-blue-700/20 dark:text-gray-100"
-							: "dark:text-gray-300 dark:hover:text-white dark:hover:bg-blue-500/10 text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
-						}`
-					}
-				>
-					Dashboard
-				</NavLink>
-				<NavLink
-					to="watchlist"
-					className={({ isActive }) =>
-						`rounded-sm px-3 py-2 text-sm font-medium ${isActive
-							? "bg-blue-200 text-blue-700 dark:bg-blue-700/20 dark:text-gray-100"
-							: "dark:text-gray-300 dark:hover:text-white dark:hover:bg-blue-500/10 text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
-						}`
-					}
-				>
-					Watchlist
-				</NavLink>
+		<div className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-md transition-colors duration-300">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="flex justify-between items-center h-16">
+					<div className="flex-shrink-0 flex items-center">
+						<NavLink to="/" className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+							CryptoTrack
+						</NavLink>
+					</div>
+					<div className="hidden sm:flex items-center space-x-8">
+						<NavLink
+							to="/"
+							className={({ isActive }) =>
+								isActive
+									? "text-blue-600 dark:text-blue-400 font-medium"
+									: "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+							}
+						>
+							Home
+						</NavLink>
+						<NavLink
+							to="/dashboard"
+							className={({ isActive }) =>
+								isActive
+									? "text-blue-600 dark:text-blue-400 font-medium"
+									: "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+							}
+						>
+							Dashboard
+						</NavLink>
+						<NavLink
+							to="/watchlist"
+							className={({ isActive }) =>
+								isActive
+									? "text-blue-600 dark:text-blue-400 font-medium"
+									: "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+							}
+						>
+							Watchlist
+						</NavLink>
 
-				<CurrencySelector />
+						{user ? (
+							<div className="flex items-center space-x-4">
+								<span className="text-gray-700 dark:text-gray-300">Hi, {user.username}</span>
+								<button
+									onClick={logout}
+									className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors"
+								>
+									Logout
+								</button>
+							</div>
+						) : (
+							<div className="flex items-center space-x-4">
+								<NavLink
+									to="/login"
+									className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+								>
+									Login
+								</NavLink>
+								<NavLink
+									to="/signup"
+									className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+								>
+									Sign Up
+								</NavLink>
+							</div>
+						)}
 
-				<div
-					className={`flex justify-center items-center rounded-full p-2 cursor-pointer hover:bg-gray-100 transition-all duration-200 dark:text-white dark:hover:bg-gray-900`}
-					onClick={() => {
-						theme === "light"
-							? setTheme("dark")
-							: setTheme("light");
-					}}
-				>
-					{theme === "light" ? (
-						<BrightnessMediumIcon sx={{ color: "#fcba03" }} />
-					) : (
-						<DarkModeIcon />
-					)}
-				</div>
-			</ul>
-			<div className="flex gap-3 sm:hidden items-center ml-4">
-				<div
-					className={`flex justify-center items-center rounded-full p-2 cursor-pointer hover:bg-gray-100 transition-all duration-200 dark:text-white dark:hover:bg-gray-900`}
-					onClick={() => {
-						theme === "light"
-							? setTheme("dark")
-							: setTheme("light");
-					}}
-				>
-					{theme === "light" ? (
-						<BrightnessMediumIcon sx={{ color: "#fcba03" }} />
-					) : (
-						<DarkModeIcon />
-					)}
-				</div>
-				<CurrencySelector />
-				<div
-					className="sm:hidden hover:bg-blue-100 p-3 flex justify-center items-center rounded-3xl cursor-pointer dark:text-white dark:hover:bg-blue-900/20"
-					onClick={toggleMenu}
-				>
-					{menu ? (
-						<CloseIcon fontSize="small" />
-					) : (
-						<MenuIcon fontSize="small" />
-					)}
+						<CurrencySelector />
+						<button
+							onClick={toggleTheme}
+							className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+						>
+							{theme === "light" ? (
+								<DarkModeIcon className="text-gray-700" />
+							) : (
+								<LightModeIcon className="text-yellow-400" />
+							)}
+						</button>
+					</div>
+					<div className="sm:hidden flex items-center">
+						<button
+							onClick={toggleMenu}
+							className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none"
+						>
+							{menu ? <CloseIcon /> : <MenuIcon />}
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>

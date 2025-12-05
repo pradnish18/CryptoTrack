@@ -1,0 +1,50 @@
+{
+    "users": [
+        {
+            "id": 1,
+            "username": "demo",
+            "watchlist": [
+                "bitcoin",
+                "ethereum",
+                "cardano"
+            ],
+            "portfolio": {
+                "bitcoin": {
+                    "totalInvestment": 5000,
+                    "coins": 0.1
+                },
+                "ethereum": {
+                    "totalInvestment": 2000,
+                    "coins": 0.8
+                }
+            }
+        }
+    ],
+    "watchlists": [
+        {
+            "id": 1,
+            "userId": 1,
+            "coins": [
+                "bitcoin",
+                "ethereum",
+                "cardano"
+            ]
+        }
+    ],
+    "portfolios": [
+        {
+            "id": 1,
+            "userId": 1,
+            "holdings": {
+                "bitcoin": {
+                    "totalInvestment": 5000,
+                    "coins": 0.1
+                },
+                "ethereum": {
+                    "totalInvestment": 2000,
+                    "coins": 0.8
+                }
+            }
+        }
+    ]
+}

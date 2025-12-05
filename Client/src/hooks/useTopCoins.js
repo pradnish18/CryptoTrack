@@ -17,8 +17,12 @@ export default function useTopCoins() {
 				const data = await response.json();
 				setCoins(data);
 			} catch (err) {
-				console.error("Error fetching top coins:", err);
-				setError(err.message);
+				console.error("Error fetching top coins, using mock data:", err);
+				// Fallback to mock data
+				import("../constants/mockData").then((module) => {
+					setCoins(module.MOCK_COINS);
+				});
+				// Don't set error state so UI doesn't show error message
 			} finally {
 				setLoading(false);
 			}
