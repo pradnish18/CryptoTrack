@@ -17,15 +17,6 @@ A web application to track real-time cryptocurrency prices, manage a personal po
 
 CryptoTrack is a web application that allows users to track real-time cryptocurrency prices, manage their portfolio, and maintain a watchlist. Users can register, log in, add/remove coins to their portfolio or watchlist, and export their portfolio data as PDF or CSV reports. This project was developed as part of an internship at Ultimez Technology Pvt Ltd.
 
-## Live Demo
-
-The application is deployed and publicly accessible:
-
-- **Frontend (Vercel):** [`https://cryptotrack-ultimez.vercel.app/`](https://cryptotrack-ultimez.vercel.app/)
-- **Backend (Render):** [`https://cryptotrack-rhun.onrender.com`](https://cryptotrack-rhun.onrender.com)
-
-_Note: The backend is hosted on a free Render instance, so the initial server response might be slow as the instance "wakes up" from a sleep state._
-
 ## Features
 
 - User authentication (register, login, logout)
@@ -43,7 +34,6 @@ The project is built with the MERN stack and other modern technologies:
 
 - **Frontend:** React, Tailwind CSS
 - **Backend:** Node.js, Express.js
-- **Database:** MongoDB (with Mongoose)
 - **Authentication:** JWT, Passport.js
 - **APIs:** CoinGecko (crypto data), Frankfurter (currency conversion)
 - **Key Libraries:**
@@ -58,14 +48,6 @@ The project is built with the MERN stack and other modern technologies:
 ### Home Page
 <img src="./images/home.png" alt="Home Page" width="800px">
 Search and view top cryptocurrencies, add to watchlist or portfolio.
-
-### Login Page
-<img src="./images/login.png" alt="Login Page" width="800px">
-Login for registered users.
-
-### Sign Up Page
-<img src="./images/signup.png" alt="Sign Up Page" width="800px">
-Register a new account.
 
 ### Dashboard
 <img src="./images/dashboard-top.png" alt="Dashboard - Top" width="800px">
@@ -97,7 +79,6 @@ Follow these instructions to set up and run the project locally on your machine.
 
 - Node.js (v18 or later recommended)
 - Git
-- MongoDB Community Server
 
 ### 1. Clone the Repository
 
@@ -115,18 +96,11 @@ cd Server
 npm install
 ```
 
-#### Setup Local MongoDB
-
-1.  Download and install [MongoDB Community Server](https://www.mongodb.com/try/download/community) if you haven't already.
-2.  Start the MongoDB service on your machine. On most systems, you can run `mongod` in a terminal.
-3.  The backend will connect to the default local URI.
-
 #### Environment Variables
 
 Create a `.env` file in the `Server` directory and add the following variables.
 
 ```env
-MONGODB_URI="mongodb://127.0.0.1:27017/cryptotrack"
 PORT=3000
 CLIENT="http://localhost:5173"
 JWT_SECRET="YOUR_JWT_SECRET"
