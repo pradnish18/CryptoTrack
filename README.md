@@ -138,7 +138,7 @@ npm run dev
 
 The application should now be running at **http://localhost:5173**.
 
-## Attributions
+## Key Attributes
 
 - Cryptocurrency data provided by [CoinGecko API](https://www.coingecko.com/en/api).
 - Currency conversion powered by [Frankfurter API](https://www.frankfurter.app/).
