@@ -10,7 +10,7 @@ A web application to track real-time cryptocurrency prices, manage a personal po
 - [Tech Stack](#tech-stack)
 - [Screenshots](#screenshots)
 - [Getting Started](#getting-started)
-- [Key Attributions](#attributions)
+- [Key Attributions](#Key Attributes)
 ## Description
 
 CryptoTrack is a web application that allows users to track real-time cryptocurrency prices, manage their portfolio, and maintain a watchlist. Users can register, log in, add/remove coins to their portfolio or watchlist, and export their portfolio data as PDF or CSV reports. This project was developed as part of an internship at Ultimez Technology Pvt Ltd.
