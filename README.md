@@ -80,7 +80,7 @@ Follow these instructions to set up and run the project locally on your machine.
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/JoyM268/CryptoTrack.git
+git clone https://github.com/pradnish18/CryptoTrack.git
 cd CryptoTrack
 ```
 
