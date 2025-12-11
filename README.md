@@ -60,14 +60,6 @@ Manage your favorite coins.
 <img src="./images/dark.png" alt="Dark Mode" width="800px">
 Toggle between light and dark themes with persistent preference.
 
-### Exported PDF
-<img src="./images/pdf.png" alt="Exported PDF" width="800px">
-Downloadable portfolio report in PDF format.
-
-### Exported CSV
-<img src="./images/csv.png" alt="Exported CSV" width="800px">
-Downloadable portfolio report in CSV format.
-
 ## Getting Started
 
 Follow these instructions to set up and run the project locally on your machine.
