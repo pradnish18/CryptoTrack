@@ -2,6 +2,12 @@
 
 A web application to track real-time cryptocurrency prices, manage a personal portfolio, and maintain a watchlist of favorite coins.
 
+# Done by
+- Pradnish chintada - AP23110011198
+- Nandan - AP23110010526
+- Vadlamudi Karthikeya - AP23110010533
+- A Jahnavi - AP23110010506
+
 ## Table of Contents
 
 - [Description](#description)
